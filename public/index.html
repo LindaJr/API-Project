@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>String Sort API Tester</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d14;
+      --surface:   #16162a;
+      --border:    #2a2a4a;
+      --accent:    #7c6bf8;
+      --accent-g:  #9d74f5;
+      --text:      #e8e8f8;
+      --muted:     #8888aa;
+      --success:   #4ade80;
+      --error:     #f87171;
+      --radius:    14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* animated background blobs */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: var(--accent);
+      top: -120px; left: -120px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: #f472b6;
+      bottom: -80px; right: -80px;
+      animation-delay: -6s;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 44px;
+      width: 100%;
+      max-width: 540px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.5);
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-g));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, var(--text), var(--muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { font-size: 13.5px; color: var(--muted); margin-bottom: 32px; line-height: 1.5; }
+
+    .field { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,107,248,.18);
+    }
+    input::placeholder { color: var(--muted); opacity: .7; }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-g));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .2px;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(124,107,248,.35);
+    }
+    button:hover  { opacity: .92; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(124,107,248,.45); }
+    button:active { transform: translateY(0); opacity: 1; }
+    button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* spinner inside button */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Response box */
+    #result-box {
+      margin-top: 28px;
+      display: none;
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+    .status-dot.success { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .status-dot.error   { background: var(--error);   box-shadow: 0 0 6px var(--error); }
+
+    pre {
+      background: rgba(0,0,0,.35);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: var(--text);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    .quick-test {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .quick-test strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">API Tester</span>
+  </div>
+
+  <h1>String Sort Validator</h1>
+  <p class="subtitle">
+    Enter your email and the URL of your deployed API endpoint to run the
+    external validation test.
+  </p>
+
+  <form id="test-form">
+    <div class="field">
+      <label for="email">Email Address</label>
+      <input
+        id="email"
+        type="email"
+        placeholder="you@example.com"
+        required
+        autocomplete="email"
+      />
+    </div>
+
+    <div class="field">
+      <label for="endpoint">API Endpoint URL</label>
+      <input
+        id="endpoint"
+        type="url"
+        placeholder="https://your-api.up.railway.app/webhook"
+        required
+      />
+    </div>
+
+    <button id="submit-btn" type="submit">Run Validation Test</button>
+  </form>
+
+  <div id="result-box">
+    <hr class="divider" />
+    <div class="result-header">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-label">Response</span>
+    </div>
+    <pre id="result-pre"></pre>
+  </div>
+
+  <hr class="divider" />
+  <div class="quick-test">
+    <strong>How it works:</strong> submitting this form calls the Supabase
+    validation endpoint with your details. The validator will POST
+    <code>{ data: "example" }</code> to your API and verify the response
+    matches <code>{ word: ["a","e","e","l","m","p","x"] }</code>.
+  </div>
+</div>
+
+<script>
+  const form      = document.getElementById('test-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const resultBox = document.getElementById('result-box');
+  const resultPre = document.getElementById('result-pre');
+  const statusDot = document.getElementById('status-dot');
+  const statusLbl = document.getElementById('status-label');
+
+  const VALIDATION_BASE =
+    'https://yhxzjyykdsfkdrmdxgho.supabase.co/functions/v1/application-task';
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email    = document.getElementById('email').value.trim();
+    const endpoint = document.getElementById('endpoint').value.trim();
+
+    // Build the validation URL
+    const validationUrl =
+      `${VALIDATION_BASE}?url=${encodeURIComponent(endpoint)}&email=${encodeURIComponent(email)}`;
+
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner"></span>Running test…';
+    resultBox.style.display = 'none';
+
+    try {
+      const response = await fetch(validationUrl);
+      const text     = await response.text();
+
+      // Try to pretty-print JSON, fall back to raw text
+      let display;
+      try {
+        display = JSON.stringify(JSON.parse(text), null, 2);
+      } catch {
+        display = text;
+      }
+
+      const ok = response.ok;
+      statusDot.className = `status-dot ${ok ? 'success' : 'error'}`;
+      statusLbl.textContent = ok
+        ? `✓ Success — HTTP ${response.status}`
+        : `✗ Error — HTTP ${response.status}`;
+      resultPre.textContent = display;
+    } catch (err) {
+      statusDot.className = 'status-dot error';
+      statusLbl.textContent = '✗ Network Error';
+      resultPre.textContent = err.message;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Run Validation Test';
+      resultBox.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>

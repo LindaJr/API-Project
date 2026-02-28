@@ -1,0 +1,17 @@
+{
+  "name": "string-sort-api",
+  "version": "1.0.0",
+  "description": "API endpoint that sorts string characters alphabetically",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
