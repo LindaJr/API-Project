@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "framework": null,
   "rewrites": [
     { "source": "/webhook", "destination": "/api/index.js" },
     { "source": "/(.*)", "destination": "/public/$1" }
