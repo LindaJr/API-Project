@@ -4,9 +4,8 @@
   "description": "API endpoint that sorts string characters alphabetically",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": "echo 'No build step required for static frontend'"
+    "start": "node api/index.js",
+    "dev": "nodemon api/index.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
